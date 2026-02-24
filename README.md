@@ -1,4 +1,9 @@
-# Synapse
+<div style="text-align: center;">
+<p style="font-size: 2em; font-weight: bold;">Synapse</p>
+<img src="./assets/logo.png" alt="Synapse Logo" width="100%" height="100%">
+</div>
+<br>
+<br>
 
 Synapse is a RAG-based AI PDF viewer with a built-in chatbot, making it easier than ever to search, analyze, and learn from your documents.
 
