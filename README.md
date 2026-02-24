@@ -1,7 +1,7 @@
-<div style="text-align: center;">
-<p style="font-size: 2em; font-weight: bold;">Synapse</p>
-<img src="./assets/logo.png" alt="Synapse Logo" width="100%" height="100%">
-</div>
+<h1 align="center" >Synapse</h1>
+<p align="center">
+  <img src="./assets/logo.png" width="400" />
+</p>
 <br>
 <br>
 
