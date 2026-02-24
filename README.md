@@ -1,10 +1,14 @@
-# synapse
+# Synapse
 
-An Electron application with React and TypeScript
+Synapse is a RAG-based AI PDF viewer with a built-in chatbot, making it easier than ever to search, analyze, and learn from your documents.
 
-## Recommended IDE Setup
+## Features
 
-- [VSCode](https://code.visualstudio.com/) + [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) + [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
+- RAG-based AI PDF viewer
+- Built-in chatbot
+- Search, analyze, and learn from your documents
+
+## Download the latest release from [Releases](https://github.com/venkatmidhunmareedu/synapse/releases)
 
 ## Project Setup
 
