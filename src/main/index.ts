@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
@@ -52,6 +52,41 @@ app.whenReady().then(() => {
 
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
+  ipcMain.handle('window:min', () => {
+    const window = BrowserWindow.getFocusedWindow()
+    if (window) {
+      window.minimize()
+    }
+  })
+  ipcMain.handle('window:max', () => {
+    const window = BrowserWindow.getFocusedWindow()
+    if (window) {
+      window.maximize()
+    }
+  })
+  ipcMain.handle('window:close', () => {
+    const window = BrowserWindow.getFocusedWindow()
+    if (window) {
+      window.close()
+    }
+  })
+  ipcMain.handle('dialog:select-file', (): string | null => {
+    const window = BrowserWindow.getFocusedWindow()
+    if (window) {
+      const result = dialog.showOpenDialogSync(window, {
+        filters: [
+          {
+            name: 'PDF Files',
+            extensions: ['pdf']
+          }
+        ]
+      })
+      if (result) {
+        return result[0]
+      }
+    }
+    return null
+  })
 
   createWindow()
 

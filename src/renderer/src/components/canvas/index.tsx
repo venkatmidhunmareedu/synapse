@@ -1,16 +1,13 @@
-import * as pdfjsLib from 'pdfjs-dist'
 import 'pdfjs-dist/web/pdf_viewer.css'
 
-import workerSrc from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
 import { usePDFStore } from '@renderer/hooks/use-pdf'
-
-pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc
+import EmptyState from './empty-state'
 
 const Canvas = (): React.JSX.Element => {
-  const { canvasRef } = usePDFStore()
+  const { canvasRef, filePath } = usePDFStore()
   return (
-    <div className="w-full h-full border px-3 py-2">
-      <canvas ref={canvasRef} className="w-full h-full" />
+    <div className=" flex w-full h-full px-3 py-2 items-center justify-center overflow-y-auto">
+      {filePath ? <canvas ref={canvasRef} className="w-[700px] h-full" /> : <EmptyState />}
     </div>
   )
 }

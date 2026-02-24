@@ -3,8 +3,9 @@ import { createContext, useContext, useEffect, useState, useRef } from 'react'
 import * as pdfjsLib from 'pdfjs-dist'
 import type { PDFDocumentProxy, RenderTask } from 'pdfjs-dist'
 
-// Ensure worker is set up (standard for pdfjs-dist 4.x+)
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`
+import workerSrc from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc
 
 interface PDFState {
   loading: boolean
@@ -13,19 +14,39 @@ interface PDFState {
   error: string | null
   setCurrentPage: (page: number) => void
   canvasRef: React.RefObject<HTMLCanvasElement | null>
+  openPDF: () => Promise<void>
+  filePath: string | null
+  pdf: PDFDocumentProxy | null
+  thumbnails: { src: string; page: number }[]
+  annotations: string[]
+  bookmarks: string[]
 }
 
 const PDFContext = createContext<PDFState | undefined>(undefined)
 
-export const usePDF = (
-  url: string,
-  canvasRef: React.RefObject<HTMLCanvasElement | null>
-): PDFState => {
+const usePDF = (canvasRef: React.RefObject<HTMLCanvasElement | null>): PDFState => {
   const [pdf, setPdf] = useState<PDFDocumentProxy | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const renderTaskRef = useRef<RenderTask | null>(null)
+  // File path for the PDF
+  const [filePath, setFilePath] = useState<string | null>(null)
+  const [thumbnails] = useState<{ src: string; page: number }[]>([])
+  const [annotations] = useState<string[]>([])
+  const [bookmarks] = useState<string[]>([])
+  // Select Files
+
+  const openPDF = async (): Promise<void> => {
+    const path = await window.api.selectFile()
+    if (path) {
+      setFilePath(path)
+    } else {
+      setError('No file selected')
+      return Promise.resolve()
+    }
+    return Promise.resolve()
+  }
 
   // 1. Load the Document (Once per URL change)
   useEffect(() => {
@@ -34,7 +55,7 @@ export const usePDF = (
 
     const loadDoc = async (): Promise<void> => {
       try {
-        const loadingTask = pdfjsLib.getDocument(url)
+        const loadingTask = pdfjsLib.getDocument(`file://${filePath}`)
         const pdfDoc = await loadingTask.promise
         if (isMounted) {
           setPdf(pdfDoc)
@@ -51,7 +72,7 @@ export const usePDF = (
     return () => {
       isMounted = false
     }
-  }, [url])
+  }, [filePath])
 
   // 2. Render the Page (Whenever pdf or currentPage changes)
   useEffect(() => {
@@ -101,21 +122,21 @@ export const usePDF = (
     currentPage,
     totalPages: pdf?.numPages || 0,
     error,
+    pdf,
     setCurrentPage,
-    canvasRef
+    canvasRef,
+    openPDF,
+    filePath,
+    thumbnails,
+    annotations,
+    bookmarks
   }
 }
 
 // 3. Provider Component
-export const PDFProvider = ({
-  url,
-  children
-}: {
-  url: string
-  children: React.ReactNode
-}): React.JSX.Element => {
+export const PDFProvider = ({ children }: { children: React.ReactNode }): React.JSX.Element => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const state = usePDF(url, canvasRef)
+  const state = usePDF(canvasRef)
   return <PDFContext.Provider value={state}>{children}</PDFContext.Provider>
 }
 

@@ -1,5 +1,5 @@
 const StatusBar = (): React.JSX.Element => {
-  return <div className="border">StatusBar</div>
+  return <div className="">StatusBar</div>
 }
 
 export default StatusBar

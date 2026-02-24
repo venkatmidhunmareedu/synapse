@@ -8,13 +8,15 @@ const Layout = ({ children }: { children: React.ReactNode }): React.JSX.Element 
   return (
     <div className="flex flex-col h-screen w-screen">
       <TitleBar />
-      <ResizablePanelGroup orientation="horizontal">
+      <ResizablePanelGroup orientation="horizontal" className="overflow-y-auto border-t border-b">
         <ResizablePanel defaultSize={20} minSize={20}>
           <SideBar />
         </ResizablePanel>
-        <ResizableHandle className="hover:bg-primary w-1" />
+        <ResizableHandle className="hover:bg-primary w-[2px]" withHandle />
         <ResizablePanel defaultSize={80} minSize={60}>
-          <MenuBar />
+          <div className="border-b">
+            <MenuBar />
+          </div>
           {children}
         </ResizablePanel>
       </ResizablePanelGroup>

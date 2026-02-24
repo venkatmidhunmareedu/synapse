@@ -2,7 +2,12 @@ import { contextBridge } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 
 // Custom APIs for renderer
-const api = {}
+const api = {
+  min: () => electronAPI.ipcRenderer.invoke('window:min'),
+  max: () => electronAPI.ipcRenderer.invoke('window:max'),
+  close: () => electronAPI.ipcRenderer.invoke('window:close'),
+  selectFile: () => electronAPI.ipcRenderer.invoke('dialog:select-file')
+}
 
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
