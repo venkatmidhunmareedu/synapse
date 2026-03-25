@@ -6,7 +6,8 @@ const api = {
   min: () => electronAPI.ipcRenderer.invoke('window:min'),
   max: () => electronAPI.ipcRenderer.invoke('window:max'),
   close: () => electronAPI.ipcRenderer.invoke('window:close'),
-  selectFile: () => electronAPI.ipcRenderer.invoke('dialog:select-file')
+  selectFile: () => electronAPI.ipcRenderer.invoke('dialog:select-file'),
+  readPDFFile: (filePath: string) => electronAPI.ipcRenderer.invoke('pdf:read-file', filePath)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

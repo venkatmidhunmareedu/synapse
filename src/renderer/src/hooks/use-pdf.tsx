@@ -4,6 +4,8 @@ import * as pdfjsLib from 'pdfjs-dist'
 import type { PDFDocumentProxy, RenderTask } from 'pdfjs-dist'
 
 import workerSrc from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
+import { useWindowStore } from './use-window'
+import { readPDFFile } from '../lib/api'
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc
 
@@ -14,8 +16,7 @@ interface PDFState {
   error: string | null
   setCurrentPage: (page: number) => void
   canvasRef: React.RefObject<HTMLCanvasElement | null>
-  openPDF: () => Promise<void>
-  filePath: string | null
+  textLayerRef: React.RefObject<HTMLDivElement | null> // 🆕 NEW: Added textLayerRef to state
   pdf: PDFDocumentProxy | null
   thumbnails: { src: string; page: number }[]
   annotations: string[]
@@ -24,47 +25,62 @@ interface PDFState {
 
 const PDFContext = createContext<PDFState | undefined>(undefined)
 
-const usePDF = (canvasRef: React.RefObject<HTMLCanvasElement | null>): PDFState => {
+const usePDF = (
+  canvasRef: React.RefObject<HTMLCanvasElement | null>,
+  textLayerRef: React.RefObject<HTMLDivElement | null> // 🆕 NEW: Added to hook params
+): PDFState => {
   const [pdf, setPdf] = useState<PDFDocumentProxy | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const renderTaskRef = useRef<RenderTask | null>(null)
   // File path for the PDF
-  const [filePath, setFilePath] = useState<string | null>(null)
   const [thumbnails] = useState<{ src: string; page: number }[]>([])
   const [annotations] = useState<string[]>([])
   const [bookmarks] = useState<string[]>([])
-  // Select Files
-
-  const openPDF = async (): Promise<void> => {
-    const path = await window.api.selectFile()
-    if (path) {
-      setFilePath(path)
-    } else {
-      setError('No file selected')
-      return Promise.resolve()
-    }
-    return Promise.resolve()
-  }
+  const { filePath } = useWindowStore()
 
   // 1. Load the Document (Once per URL change)
   useEffect(() => {
+    console.log('🎯 PDF useEffect triggered with filePath:', filePath)
     let isMounted = true
     setLoading(true)
+    console.log('🔄 Loading state set to true')
 
     const loadDoc = async (): Promise<void> => {
       try {
-        const loadingTask = pdfjsLib.getDocument(`file://${filePath}`)
+        console.log('📄 loadDoc called with filePath:', filePath)
+
+        if (!filePath) {
+          throw new Error('No file path provided')
+        }
+
+        console.log('📖 Reading PDF file via IPC...')
+        const pdfData = await readPDFFile(filePath)
+        console.log('✅ PDF file read successfully, size:', pdfData.length, 'bytes')
+
+        console.log('🔄 Loading PDF document with PDF.js...')
+        const loadingTask = pdfjsLib.getDocument({ data: pdfData })
         const pdfDoc = await loadingTask.promise
+        console.log('✅ PDF document loaded successfully, pages:', pdfDoc.numPages)
+
         if (isMounted) {
           setPdf(pdfDoc)
           setError(null)
+          console.log('✅ PDF state updated successfully')
         }
       } catch (err: unknown) {
-        if (isMounted) setError(err instanceof Error ? err.message : 'Failed to load PDF')
+        console.error('❌ Error loading PDF:', err)
+        if (isMounted) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to load PDF'
+          setError(errorMessage)
+          console.log('❌ Error state set:', errorMessage)
+        }
       } finally {
-        if (isMounted) setLoading(false)
+        if (isMounted) {
+          setLoading(false)
+          console.log('🏁 Loading state set to false')
+        }
       }
     }
 
@@ -101,7 +117,32 @@ const usePDF = (canvasRef: React.RefObject<HTMLCanvasElement | null>): PDFState 
           canvas
         })
 
+        // Wait for the canvas rendering to finish
         await renderTaskRef.current.promise
+
+        // 🆕 NEW: Text Layer Rendering Logic
+        if (textLayerRef.current) {
+          const textLayerDiv = textLayerRef.current
+
+          // Clear any previous text
+          textLayerDiv.innerHTML = ''
+
+          // v5+ requires the scale factor CSS variable to align text accurately
+          textLayerDiv.style.setProperty('--scale-factor', viewport.scale.toString())
+
+          // Extract text content from the page
+          const textContent = await page.getTextContent()
+
+          // Instantiate the new TextLayer class
+          const textLayer = new pdfjsLib.TextLayer({
+            textContentSource: textContent,
+            container: textLayerDiv,
+            viewport: viewport
+          })
+
+          // Execute the render task
+          await textLayer.render()
+        }
       } catch (err: unknown) {
         if (
           err &&
@@ -115,7 +156,7 @@ const usePDF = (canvasRef: React.RefObject<HTMLCanvasElement | null>): PDFState 
     }
 
     renderPage()
-  }, [pdf, currentPage, canvasRef])
+  }, [pdf, currentPage, canvasRef, textLayerRef]) // 🆕 NEW: Added textLayerRef to dependencies
 
   return {
     loading,
@@ -125,8 +166,7 @@ const usePDF = (canvasRef: React.RefObject<HTMLCanvasElement | null>): PDFState 
     pdf,
     setCurrentPage,
     canvasRef,
-    openPDF,
-    filePath,
+    textLayerRef, // 🆕 NEW: Exported to context
     thumbnails,
     annotations,
     bookmarks
@@ -136,7 +176,11 @@ const usePDF = (canvasRef: React.RefObject<HTMLCanvasElement | null>): PDFState 
 // 3. Provider Component
 export const PDFProvider = ({ children }: { children: React.ReactNode }): React.JSX.Element => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const state = usePDF(canvasRef)
+  const textLayerRef = useRef<HTMLDivElement>(null) // 🆕 NEW: Created ref for Provider
+
+  // 🆕 NEW: Passed textLayerRef to the hook
+  const state = usePDF(canvasRef, textLayerRef)
+
   return <PDFContext.Provider value={state}>{children}</PDFContext.Provider>
 }
 

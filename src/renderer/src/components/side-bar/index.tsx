@@ -1,4 +1,4 @@
-import { Rows3, MessageSquare, BookMarked } from 'lucide-react'
+import { MessageSquare, BookMarked, Image } from 'lucide-react'
 import { Button } from '../ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip'
 import { useWindowStore } from '@renderer/hooks/use-window'
@@ -17,7 +17,7 @@ const SideBar = (): React.JSX.Element => {
     {
       label: 'Thumbnails',
       identifier: 'thumbnails',
-      icon: <Rows3 className="w-10 h-10" />,
+      icon: <Image className="w-10 h-10" />,
       commands: ['Ctrl', 't']
     },
     {
@@ -57,8 +57,9 @@ const SideBar = (): React.JSX.Element => {
                 variant={'ghost'}
                 size={'icon-lg'}
                 className={cn(
-                  'w-full m-0 p-0 rounded-none hover:bg-background/10 opacity-50 hover:opacity-100',
-                  currentView === item.identifier && 'opacity-100 bg-primary/30'
+                  'rounded-none opacity-50 hover:opacity-100',
+                  currentView === item.identifier &&
+                    'opacity-100 bg-muted/10 border-l-3 border-l-primary'
                 )}
                 key={item.label}
                 onClick={() =>

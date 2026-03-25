@@ -1,4 +1,5 @@
 import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
+import { readFileSync } from 'fs'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
@@ -82,10 +83,22 @@ app.whenReady().then(() => {
         ]
       })
       if (result) {
+        console.log('File opened : ', result[0])
         return result[0]
       }
     }
     return null
+  })
+  ipcMain.handle('pdf:read-file', (_event, filePath: string): Uint8Array => {
+    console.log('🔧 Main process: pdf:read-file called with path:', filePath)
+    try {
+      const fileData = readFileSync(filePath)
+      console.log('🔧 Main process: File read successfully, size:', fileData.length, 'bytes')
+      return new Uint8Array(fileData)
+    } catch (error) {
+      console.error('🔧 Main process: Error reading PDF file:', error)
+      throw error
+    }
   })
 
   createWindow()

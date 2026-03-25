@@ -5,6 +5,7 @@ import { createContext, useContext, useEffect, useState } from 'react'
 interface WindowState {
   currentView: 'thumbnails' | 'annotations' | 'bookmarks'
   setCurrentView: (view: 'thumbnails' | 'annotations' | 'bookmarks') => void
+  filePath: string | null
 }
 
 const windowContext = createContext<WindowState | undefined>(undefined)
@@ -13,38 +14,57 @@ const useWindow = (): WindowState => {
   const [currentView, setCurrentView] = useState<'thumbnails' | 'annotations' | 'bookmarks'>(
     'thumbnails'
   )
+  const [filePath, setFilePath] = useState<string | null>(null)
 
   useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent): void => {
+      switch (true) {
+        case e.ctrlKey && e.key === 'o':
+          e.preventDefault()
+          selectFile().then((path) => {
+            if (path) {
+              console.log('📁 File selected:', path)
+              setFilePath(path)
+            }
+          })
+          break
+        case e.ctrlKey && e.key === 't':
+          e.preventDefault()
+          setCurrentView('thumbnails')
+          break
+        case e.ctrlKey && e.key === 'a':
+          e.preventDefault()
+          setCurrentView('annotations')
+          break
+        case e.ctrlKey && e.key === 'b':
+          e.preventDefault()
+          setCurrentView('bookmarks')
+          break
+        default:
+          break
+      }
+    }
+
     if (window) {
-      window.addEventListener('keydown', (e) => {
-        switch (true) {
-          case e.ctrlKey && e.key === 'o':
-            selectFile()
-            break
-          case e.ctrlKey && e.key === 't':
-            setCurrentView('thumbnails')
-            break
-          case e.ctrlKey && e.key === 'a':
-            setCurrentView('annotations')
-            break
-          case e.ctrlKey && e.key === 'b':
-            setCurrentView('bookmarks')
-            break
-          default:
-            break
-        }
-      })
+      window.addEventListener('keydown', handleKeyDown)
     }
 
     return () => {
       if (window) {
-        window.removeEventListener('keydown', () => {})
+        window.removeEventListener('keydown', handleKeyDown)
       }
     }
   }, [])
+
+  // Track filePath changes for debugging
+  useEffect(() => {
+    console.log('🔄 useWindow: filePath changed to:', filePath)
+  }, [filePath])
+
   return {
     currentView,
-    setCurrentView
+    setCurrentView,
+    filePath
   }
 }
 

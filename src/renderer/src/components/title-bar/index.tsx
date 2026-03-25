@@ -51,16 +51,16 @@ const TitleBar = (): React.JSX.Element => {
   ]
 
   return (
-    <div className="flex justify-between  w-full h-10 bg-background title-bar-drag-area">
+    <div className="flex justify-between  w-full h-10 bg-background title-bar-drag-area m-0">
       {/* Left side - Brand and actions */}
       <div className="flex w-full items-center mx-0 px-0">
         {/* Brand */}
 
         <div
-          className="flex items-center justify-center title-bar-no-drag-area cursor-default select-none pointer-events-none w-[65px]"
+          className=" flex items-center justify-center title-bar-no-drag-area cursor-default select-none pointer-events-none w-[54px] p-0 m-0"
           aria-hidden="true"
         >
-          <Sparkles size={25} className=" rounded p-1" />
+          <Sparkles size={25} className=" rounded p-1 m-0" />
           {/* <p className="text-sm font-semibold">Synapse</p> */}
         </div>
 

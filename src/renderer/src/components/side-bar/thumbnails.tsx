@@ -17,15 +17,15 @@ const ThumbnailCard = ({ page, src }: { page: number; src: string }): React.JSX.
 const Thumbnails = (): React.JSX.Element => {
   const { thumbnails } = usePDFStore()
   return (
-    <div className="h-full">
-      <div className="h-full">
+    <div className="h-full w-full">
+      <div className="h-full w-full">
         {thumbnails?.length > 0 ? (
           thumbnails.map((thumbnail, index) => (
             <ThumbnailCard key={index} page={index + 1} src={thumbnail.src} />
           ))
         ) : (
           <EmptyState
-            desc="Thumbnails meta data is not available"
+            desc="Thumbnails are not available for this PDF"
             icon={<Image className="h-8 w-8" />}
           />
         )}

@@ -13,3 +13,7 @@ export const close = (): Promise<void> => {
 export const selectFile = (): Promise<string | null> => {
   return window.api.selectFile()
 }
+
+export const readPDFFile = (filePath: string): Promise<Uint8Array> => {
+  return window.api.readPDFFile(filePath)
+}
