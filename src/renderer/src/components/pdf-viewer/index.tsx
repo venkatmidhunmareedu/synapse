@@ -10,8 +10,17 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 ).toString()
 
 export default function PDFViewer(): React.JSX.Element {
-  const { file, error, currentPage, setCurrentPage, setTotalPages, setDocumentError, scale, zoom } =
-    usePDFStore()
+  const {
+    file,
+    error,
+    currentPage,
+    totalPages,
+    setCurrentPage,
+    setTotalPages,
+    setDocumentError,
+    scale,
+    zoom
+  } = usePDFStore()
 
   if (error) return <div>Error: {error}</div>
   if (!file) return <div>Loading...</div>
@@ -24,6 +33,11 @@ export default function PDFViewer(): React.JSX.Element {
         setCurrentPage(1)
       }}
       onLoadError={(err) => setDocumentError(err.message)}
+      onItemClick={({ pageNumber }) => {
+        if (!pageNumber) return
+        const nextPage = totalPages > 0 ? Math.min(pageNumber, totalPages) : pageNumber
+        setCurrentPage(nextPage)
+      }}
     >
       <Page
         pageNumber={currentPage}

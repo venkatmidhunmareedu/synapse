@@ -27,7 +27,7 @@ const ThumbnailCard = ({ page, src }: { page: number; src: string }): React.JSX.
 }
 
 const Thumbnails = (): React.JSX.Element => {
-  const { thumbnails, currentPage } = usePDFStore()
+  const { thumbnails, currentPage, totalPages } = usePDFStore()
 
   useEffect(() => {
     // scroll to the current page thumbnail
@@ -40,7 +40,12 @@ const Thumbnails = (): React.JSX.Element => {
   return (
     <div className="h-full w-full">
       <div className="h-full w-full">
-        {thumbnails?.length > 0 ? (
+        {totalPages == 0 ? (
+          <EmptyState
+            desc="Load a PDF file to view thumbnails"
+            icon={<Image className="h-8 w-8" />}
+          />
+        ) : thumbnails?.length > 0 ? (
           thumbnails.map((thumbnail, index) => (
             <ThumbnailCard key={index} page={thumbnail.page} src={thumbnail.src} />
           ))
