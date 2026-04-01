@@ -178,3 +178,14 @@
   line-height: 1;
   /* pdfjs built-in class handles span positioning */
 }
+
+/* In your global CSS or a module */
+.react-pdf__Page__textContent {
+  pointer-events: auto !important;
+  user-select: text !important;
+  z-index: 10 !important;
+}
+
+.react-pdf__Page__annotations {
+  pointer-events: auto !important;
+}
