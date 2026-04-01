@@ -3,10 +3,11 @@ import { usePDFStore } from '@renderer/hooks/use-pdf'
 import EmptyState from './empty-state'
 import { useWindowStore } from '@renderer/hooks/use-window'
 import { Loader2 } from 'lucide-react'
+import PDFViewer from '../pdf-viewer'
 
 const Canvas = (): React.JSX.Element => {
   // 1. Destructure a new ref for the text layer from your store
-  const { canvasRef, textLayerRef, loading } = usePDFStore()
+  const { loading } = usePDFStore()
   const { filePath } = useWindowStore()
 
   return (
@@ -21,14 +22,15 @@ const Canvas = (): React.JSX.Element => {
             /* 2. Create a relative wrapper to hold both the canvas and the text layer */
             <div className="relative h-full bg-white">
               {/* Canvas sits in the background */}
-              <canvas ref={canvasRef} className="" />
+              {/* <canvas ref={canvasRef} className="" /> */}
 
               {/* Text Layer sits invisibly exactly on top */}
-              <div
+              {/* <div
                 ref={textLayerRef}
                 className="textLayer absolute top-0 left-0 w-full h-full"
                 style={{ overflow: 'hidden' }}
-              />
+              /> */}
+              <PDFViewer />
             </div>
           )}
         </>

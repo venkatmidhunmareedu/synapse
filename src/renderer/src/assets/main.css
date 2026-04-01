@@ -157,3 +157,24 @@
 .title-bar-drag-area {
   -webkit-app-region: drag;
 }
+
+/* PDF.js text layer CSS */
+
+.pdf-container {
+  position: relative;
+  display: inline-block; /* shrink-wraps to canvas size */
+}
+
+.pdf-canvas {
+  display: block;
+}
+
+.text-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  /* DO NOT set width/height here via CSS — let JS control it */
+  overflow: hidden;
+  line-height: 1;
+  /* pdfjs built-in class handles span positioning */
+}

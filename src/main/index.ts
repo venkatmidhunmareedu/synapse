@@ -89,12 +89,12 @@ app.whenReady().then(() => {
     }
     return null
   })
-  ipcMain.handle('pdf:read-file', (_event, filePath: string): Uint8Array => {
+  ipcMain.handle('pdf:read-file', (_event, filePath: string): string => {
     console.log('🔧 Main process: pdf:read-file called with path:', filePath)
     try {
       const fileData = readFileSync(filePath)
       console.log('🔧 Main process: File read successfully, size:', fileData.length, 'bytes')
-      return new Uint8Array(fileData)
+      return fileData.toString('base64') // ✅ base64 is IPC-safe
     } catch (error) {
       console.error('🔧 Main process: Error reading PDF file:', error)
       throw error

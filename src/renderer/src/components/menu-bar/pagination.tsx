@@ -4,10 +4,10 @@ import { usePDFStore } from '@renderer/hooks/use-pdf'
 import { cn } from '@renderer/lib/utils'
 
 const Pagination = (): React.JSX.Element => {
-  const { currentPage, totalPages, setCurrentPage, pdf } = usePDFStore()
+  const { currentPage, totalPages, setCurrentPage, file } = usePDFStore()
 
   return (
-    <div className={cn('flex  gap-1', pdf ? '' : 'invisible')}>
+    <div className={cn('flex  gap-1', file ? '' : 'invisible')}>
       <Button
         variant={'secondary'}
         disabled={currentPage === 1}

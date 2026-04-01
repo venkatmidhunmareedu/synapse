@@ -8,7 +8,7 @@ declare global {
       max: () => Promise<void>
       close: () => Promise<void>
       selectFile: () => Promise<string | null>
-      readPDFFile: (filePath: string) => Promise<Uint8Array>
+      readPDFFile: (filePath: string) => Promise<string>
     }
   }
 }
