@@ -7,7 +7,7 @@ const PageManipulator = (): React.JSX.Element => {
   const { totalPages, file, currentPage, scale, setScale } = usePDFStore()
   return (
     <div className={cn('flex items-center gap-1', file ? '' : 'invisible')}>
-      <div className="w-[50px] px-1 rounded-sm text-center ">
+      <div className="flex-1 px-1 rounded-sm text-center ">
         {currentPage} / {totalPages == 0 ? 10 : totalPages}
       </div>
       <div className="flex items-center gap-1">

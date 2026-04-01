@@ -1,6 +1,6 @@
 import MenuBar from './menu-bar'
 import SideBar from './side-bar'
-import StatusBar from './status-bar'
+// import StatusBar from './status-bar'
 import TitleBar from './title-bar'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from './ui/resizable'
 
@@ -20,7 +20,7 @@ const Layout = ({ children }: { children: React.ReactNode }): React.JSX.Element 
           {children}
         </ResizablePanel>
       </ResizablePanelGroup>
-      <StatusBar />
+      {/* <StatusBar /> */}
     </div>
   )
 }
