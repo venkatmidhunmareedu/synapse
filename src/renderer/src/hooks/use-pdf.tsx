@@ -11,6 +11,10 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc
 
 interface PDFState {
   loading: boolean
+  scale: number
+  setScale: (scale: number) => void
+  zoom: number
+  setZoom: (zoom: number) => void
   currentPage: number
   totalPages: number
   error: string | null
@@ -31,11 +35,13 @@ const usePDF = (
 ): PDFState => {
   const [pdf, setPdf] = useState<PDFDocumentProxy | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
+  const [scale, setScale] = useState(1)
+  const [zoom, setZoom] = useState(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const renderTaskRef = useRef<RenderTask | null>(null)
   // File path for the PDF
-  const [thumbnails] = useState<{ src: string; page: number }[]>([])
+  const [thumbnails, setThumbnails] = useState<{ src: string; page: number }[]>([])
   const [annotations] = useState<string[]>([])
   const [bookmarks] = useState<string[]>([])
   const { filePath } = useWindowStore()
@@ -64,8 +70,37 @@ const usePDF = (
         const pdfDoc = await loadingTask.promise
         console.log('✅ PDF document loaded successfully, pages:', pdfDoc.numPages)
 
+        const thumbnailScale = 0.2
+        const generatedThumbnails: { src: string; page: number }[] = []
+
+        for (let pageNumber = 1; pageNumber <= pdfDoc.numPages; pageNumber += 1) {
+          const page = await pdfDoc.getPage(pageNumber)
+          const viewport = page.getViewport({ scale: thumbnailScale })
+          const thumbCanvas = document.createElement('canvas')
+          const thumbContext = thumbCanvas.getContext('2d')
+
+          if (!thumbContext) continue
+
+          thumbCanvas.width = viewport.width
+          thumbCanvas.height = viewport.height
+
+          const thumbRenderTask = page.render({
+            canvasContext: thumbContext,
+            viewport,
+            canvas: thumbCanvas
+          })
+
+          await thumbRenderTask.promise
+
+          generatedThumbnails.push({
+            src: thumbCanvas.toDataURL('image/jpeg', 0.8),
+            page: pageNumber
+          })
+        }
+
         if (isMounted) {
           setPdf(pdfDoc)
+          setThumbnails(generatedThumbnails)
           setError(null)
           console.log('✅ PDF state updated successfully')
         }
@@ -74,6 +109,7 @@ const usePDF = (
         if (isMounted) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to load PDF'
           setError(errorMessage)
+          setThumbnails([])
           console.log('❌ Error state set:', errorMessage)
         }
       } finally {
@@ -102,9 +138,9 @@ const usePDF = (
         if (!context) return
 
         // High-DPI scaling
-        const viewport = page.getViewport({ scale: 1.5 })
-        canvas.height = viewport.height
-        canvas.width = viewport.width
+        const viewport = page.getViewport({ scale: scale })
+        canvas.height = viewport.height * zoom
+        canvas.width = viewport.width * zoom
 
         // Cancel previous render task to prevent flickering/overlap
         if (renderTaskRef.current) {
@@ -156,9 +192,21 @@ const usePDF = (
     }
 
     renderPage()
-  }, [pdf, currentPage, canvasRef, textLayerRef]) // 🆕 NEW: Added textLayerRef to dependencies
+  }, [pdf, currentPage, canvasRef, textLayerRef, scale, zoom]) // 🆕 NEW: Added textLayerRef to dependencies
+
+  useEffect(() => {
+    if (filePath) return
+
+    setPdf(null)
+    setThumbnails([])
+    setError(null)
+  }, [filePath])
 
   return {
+    scale,
+    setScale,
+    zoom,
+    setZoom,
     loading,
     currentPage,
     totalPages: pdf?.numPages || 0,

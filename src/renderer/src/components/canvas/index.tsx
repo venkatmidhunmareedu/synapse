@@ -10,7 +10,7 @@ const Canvas = (): React.JSX.Element => {
   const { filePath } = useWindowStore()
 
   return (
-    <div className="flex h-[calc(100%-10rem)] w-full px-3 py-2 items-center justify-center overflow-y-auto">
+    <div className="flex h-full w-full px-3 py-2 items-center justify-center overflow-y-auto border">
       {filePath ? (
         <>
           {loading ? (
@@ -19,9 +19,9 @@ const Canvas = (): React.JSX.Element => {
             </div>
           ) : (
             /* 2. Create a relative wrapper to hold both the canvas and the text layer */
-            <div className="relative w-[700px] h-full bg-white">
+            <div className="relative h-full bg-white">
               {/* Canvas sits in the background */}
-              <canvas ref={canvasRef} className="absolute top-0 left-0 w-full h-full" />
+              <canvas ref={canvasRef} className="" />
 
               {/* Text Layer sits invisibly exactly on top */}
               <div

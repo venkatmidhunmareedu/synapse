@@ -1,12 +1,23 @@
 import { usePDFStore } from '@renderer/hooks/use-pdf'
-import { Input } from '../ui/input'
+import { cn } from '@renderer/lib/utils'
+import { ZoomIn, ZoomOut } from 'lucide-react'
+import { Button } from '../ui/button'
 
 const PageManipulator = (): React.JSX.Element => {
-  const { totalPages } = usePDFStore()
+  const { totalPages, pdf, currentPage, scale, setScale } = usePDFStore()
   return (
-    <div>
-      <Input className="w-[50px] px-1 rounded-sm" type="number" defaultValue={1} /> {'/'}{' '}
-      {totalPages == 0 ? 10 : totalPages}
+    <div className={cn('flex items-center gap-1', pdf ? '' : 'invisible')}>
+      <div className="w-[50px] px-1 rounded-sm text-center ">
+        {currentPage} / {totalPages == 0 ? 10 : totalPages}
+      </div>
+      <div className="flex items-center gap-1">
+        <Button variant="secondary" disabled={scale === 1} onClick={() => setScale(scale - 0.5)}>
+          <ZoomOut className="size-4" />
+        </Button>
+        <Button variant="secondary" disabled={scale === 10} onClick={() => setScale(scale + 0.5)}>
+          <ZoomIn />
+        </Button>
+      </div>
     </div>
   )
 }

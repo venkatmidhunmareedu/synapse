@@ -2,26 +2,47 @@ import { usePDFStore } from '@renderer/hooks/use-pdf'
 import { Card, CardContent, CardFooter } from '../ui/card'
 import EmptyState from './empty-state'
 import { Image } from 'lucide-react'
+import { cn } from '@renderer/lib/utils'
+import { useEffect } from 'react'
 
 const ThumbnailCard = ({ page, src }: { page: number; src: string }): React.JSX.Element => {
+  const { setCurrentPage, currentPage } = usePDFStore()
   return (
-    <Card>
-      <CardContent>
-        <img src={src} />
+    <Card
+      data-page={page}
+      className={cn(
+        'cursor-pointer mb-3 border-2 transition-all  duration-300 rounded-sm',
+        currentPage === page ? ' border-primary' : 'border-background'
+      )}
+      onClick={() => setCurrentPage(page)}
+    >
+      <CardContent className="flex items-center justify-center border-none">
+        <img src={src} className="w-fit h-fit" />
       </CardContent>
-      <CardFooter>{page}</CardFooter>
+      <CardFooter className="flex items-center justify-center text-xs font-semibold border-none">
+        {page}
+      </CardFooter>
     </Card>
   )
 }
 
 const Thumbnails = (): React.JSX.Element => {
-  const { thumbnails } = usePDFStore()
+  const { thumbnails, currentPage } = usePDFStore()
+
+  useEffect(() => {
+    // scroll to the current page thumbnail
+    const thumbnail = document.querySelector<HTMLElement>(`[data-page="${currentPage}"]`)
+    if (thumbnail) {
+      thumbnail.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }, [currentPage, thumbnails])
+
   return (
     <div className="h-full w-full">
       <div className="h-full w-full">
         {thumbnails?.length > 0 ? (
           thumbnails.map((thumbnail, index) => (
-            <ThumbnailCard key={index} page={index + 1} src={thumbnail.src} />
+            <ThumbnailCard key={index} page={thumbnail.page} src={thumbnail.src} />
           ))
         ) : (
           <EmptyState
