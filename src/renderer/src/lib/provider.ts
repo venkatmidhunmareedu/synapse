@@ -1,8 +1,11 @@
 import { ToolLoopAgent } from 'ai'
 import { ollama } from 'ollama-ai-provider-v2'
+import { tools } from './tools'
 
 export const toolLoopAgent = new ToolLoopAgent({
   model: ollama('qwen3.5:2b'),
   instructions: 'You are a helpful assistant that can answer questions about the document.',
-  tools: {}
+  tools: tools,
+  toolChoice: 'auto',
+  activeTools: ['greet', 'weather']
 })

@@ -1,6 +1,6 @@
 import React from 'react'
 import { UIMessage } from 'ai'
-import { Card, CardContent } from '../ui/card'
+import { Card } from '../ui/card'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import CodeBlock from './code-block'
@@ -50,12 +50,30 @@ const ChatBubble = ({ message }: Props): React.JSX.Element => {
             </div>
           )
         }
-        if (part.type === 'reasoning') {
-          return (
-            <CardContent key={index} className="text-xs italic text-muted-foreground">
-              <p style={{ opacity: 0.6 }}>{part.text}</p>
-            </CardContent>
-          )
+        // if (part.type === 'reasoning') {
+        //   return (
+        //     <CardContent key={index} className="text-xs italic text-muted-foreground">
+        //       <p style={{ opacity: 0.6 }}>{part.text}</p>
+        //     </CardContent>
+        //   )
+        // }
+        if (part.type === 'dynamic-tool') {
+          switch (part.state) {
+            case 'input-streaming':
+              return (
+                <div key={index} className="text-xs text-muted-foreground">
+                  <p>{part.toolName} executing </p>
+                </div>
+              )
+            case 'input-available':
+              return (
+                <div key={index} className="text-xs text-muted-foreground">
+                  <p>{part.toolName} input available </p>
+                </div>
+              )
+            default:
+              return null
+          }
         }
         return null
       })}
