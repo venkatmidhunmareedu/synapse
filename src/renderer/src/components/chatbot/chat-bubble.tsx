@@ -2,6 +2,8 @@ import React from 'react'
 import { UIMessage } from 'ai'
 import { Card, CardContent } from '../ui/card'
 import Markdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import CodeBlock from './code-block'
 
 type Props = {
   message: UIMessage
@@ -21,7 +23,30 @@ const ChatBubble = ({ message }: Props): React.JSX.Element => {
           }
           return (
             <div key={index} className="text-xs">
-              <Markdown>{part.text}</Markdown>
+              <Markdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  code({ className, children, ...props }) {
+                    const match = /language-(\w+)/.exec(className || '')
+                    const code = String(children).replace(/\n$/, '')
+
+                    if (!className) {
+                      return (
+                        <code className={className} {...props}>
+                          {children}
+                        </code>
+                      )
+                    }
+
+                    return <CodeBlock code={code} language={match?.[1]} />
+                  },
+                  pre({ children }) {
+                    return <pre className="text-red">{children}</pre>
+                  }
+                }}
+              >
+                {part.text}
+              </Markdown>
             </div>
           )
         }

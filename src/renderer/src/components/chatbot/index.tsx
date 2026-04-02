@@ -35,13 +35,13 @@ const ChatBot = (): React.JSX.Element => {
   return (
     <div className="h-full flex flex-col justify-center items-center relative">
       {/* Chat Body */}
-      <div className="h-full w-full">
+      <div className="h-[calc(100%-200px)] w-full">
         {messages.length === 0 ? (
-          <div className="h-full w-full flex items-center justify-center">
+          <div className="h-full w-full flex items-center justify-center px-3">
             <EmptyState sendMessage={handleSendMessage} />
           </div>
         ) : (
-          <ScrollArea className="h-[calc(100%-200px)] w-full px-3">
+          <ScrollArea className="h-full w-full px-3">
             {messages.map((message, index) => (
               <ChatBubble key={index} message={message} />
             ))}

@@ -1,5 +1,5 @@
 import { ToolLoopAgent } from 'ai'
-import { ollama } from 'ai-sdk-ollama'
+import { ollama } from 'ollama-ai-provider-v2'
 
 export const toolLoopAgent = new ToolLoopAgent({
   model: ollama('qwen3.5:2b'),

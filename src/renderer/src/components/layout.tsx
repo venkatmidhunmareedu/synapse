@@ -29,7 +29,7 @@ const Layout = ({ children }: { children: React.ReactNode }): React.JSX.Element 
         {totalPages > 0 && (
           <>
             <ResizableHandle className="hover:bg-primary w-[2px]" withHandle />
-            <ResizablePanel defaultSize={20} minSize={20}>
+            <ResizablePanel defaultSize={20}>
               <ChatBot />
             </ResizablePanel>
           </>
