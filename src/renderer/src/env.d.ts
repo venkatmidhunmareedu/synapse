@@ -10,8 +10,10 @@ declare namespace Window {
     api: {
       min: () => Promise<void>
       max: () => Promise<void>
+      restore: () => Promise<void>
       close: () => Promise<void>
       selectFile: () => Promise<string | null>
+      onWindowStateChanged: (callback: (state: string) => void) => void
     }
   }
 }

@@ -1,9 +1,16 @@
-import { Minus, Sparkles, Square, X } from 'lucide-react'
+import { Maximize, Minimize, Minus, Sparkles, X } from 'lucide-react'
 import { Button } from '../ui/button'
-import { maximise, minimize, close } from '@/lib/api'
+import { maximise, minimize, close, restore } from '@/lib/api'
 import { cn } from '@/lib/utils'
+import { useEffect, useState } from 'react'
 
 const TitleBar = (): React.JSX.Element => {
+  const [windowState, setWindowState] = useState<'MAXIMIZED' | 'UNMAXIMIZED'>('UNMAXIMIZED')
+  useEffect(() => {
+    window.api.onWindowStateChanged((state) => {
+      setWindowState(state as 'MAXIMIZED' | 'UNMAXIMIZED')
+    })
+  }, [])
   const titleBarItems: {
     label: string
     action: () => void
@@ -36,9 +43,13 @@ const TitleBar = (): React.JSX.Element => {
     },
     {
       id: 'maximize',
-      icon: <Square size={14} />,
+      icon: windowState === 'MAXIMIZED' ? <Minimize size={14} /> : <Maximize size={14} />,
       action: async () => {
-        await maximise()
+        if (windowState === 'MAXIMIZED') {
+          await restore()
+        } else {
+          await maximise()
+        }
       }
     },
     {

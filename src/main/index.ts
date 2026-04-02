@@ -23,6 +23,14 @@ function createWindow(): void {
     mainWindow.show()
   })
 
+  // Sending window state to renderer
+  mainWindow.on('maximize', () => {
+    mainWindow.webContents.send('window:state-changed', 'MAXIMIZED')
+  })
+  mainWindow.on('unmaximize', () => {
+    mainWindow.webContents.send('window:state-changed', 'UNMAXIMIZED')
+  })
+
   mainWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url)
     return { action: 'deny' }
@@ -51,8 +59,7 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  // IPC test
-  ipcMain.on('ping', () => console.log('pong'))
+  // Handlers
   ipcMain.handle('window:min', () => {
     const window = BrowserWindow.getFocusedWindow()
     if (window) {
@@ -63,6 +70,16 @@ app.whenReady().then(() => {
     const window = BrowserWindow.getFocusedWindow()
     if (window) {
       window.maximize()
+    }
+  })
+  ipcMain.handle('window:restore', () => {
+    const window = BrowserWindow.getFocusedWindow()
+    if (window) {
+      if (window.isMaximized()) {
+        window.unmaximize()
+      } else {
+        window.maximize()
+      }
     }
   })
   ipcMain.handle('window:close', () => {

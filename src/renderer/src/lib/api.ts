@@ -6,6 +6,10 @@ export const maximise = (): Promise<void> => {
   return window.api.max()
 }
 
+export const restore = (): Promise<void> => {
+  return window.api.restore()
+}
+
 export const close = (): Promise<void> => {
   return window.api.close()
 }
