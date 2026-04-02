@@ -4,6 +4,7 @@ import SideBar from './side-bar'
 // import StatusBar from './status-bar'
 import TitleBar from './title-bar'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from './ui/resizable'
+import ChatBot from './chatbot'
 
 const Layout = ({ children }: { children: React.ReactNode }): React.JSX.Element => {
   const { totalPages } = usePDFStore()
@@ -19,12 +20,20 @@ const Layout = ({ children }: { children: React.ReactNode }): React.JSX.Element 
             <ResizableHandle className="hover:bg-primary w-[2px]" withHandle />
           </>
         )}
-        <ResizablePanel defaultSize={80} minSize={60}>
+        <ResizablePanel defaultSize={60} minSize={60}>
           <div className="border-b">
             <MenuBar />
           </div>
           {children}
         </ResizablePanel>
+        {totalPages > 0 && (
+          <>
+            <ResizableHandle className="hover:bg-primary w-[2px]" withHandle />
+            <ResizablePanel defaultSize={20} minSize={20}>
+              <ChatBot />
+            </ResizablePanel>
+          </>
+        )}
       </ResizablePanelGroup>
       {/* <StatusBar /> */}
     </div>

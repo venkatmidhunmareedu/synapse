@@ -3,6 +3,14 @@ import { readFileSync } from 'fs'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import { streamText } from 'ai'
+import { createOpenAI, OpenAIProvider } from '@ai-sdk/openai'
+import { OPENAI_API_KEY, OPENAI_MODEL, OPENAI_URL } from './constants'
+
+const modelProvider = createOpenAI({
+  apiKey: OPENAI_API_KEY,
+  baseURL: OPENAI_URL
+}) as OpenAIProvider
 
 function createWindow(): void {
   // Create the browser window.
@@ -115,6 +123,27 @@ app.whenReady().then(() => {
     } catch (error) {
       console.error('🔧 Main process: Error reading PDF file:', error)
       throw error
+    }
+  })
+  // Chat bot Handlers
+  ipcMain.on('start-chat', async (event, streamId, messages) => {
+    try {
+      const result = await streamText({
+        model: modelProvider(OPENAI_MODEL), // Or your preferred provider
+        messages: messages,
+        system: 'You are a helpful assistant that can answer questions about the document.'
+      })
+
+      // Iterate over the continuous stream and send chunks over IPC
+      for await (const textPart of result.textStream) {
+        event.sender.send('stream-event', streamId, { type: 'chunk', data: textPart })
+      }
+
+      // Signal that the stream has finished
+      event.sender.send('stream-event', streamId, { type: 'end' })
+    } catch (error) {
+      console.error('AI Stream Error:', error)
+      event.sender.send('stream-event', streamId, { type: 'error', data: (error as Error).message })
     }
   })
 
