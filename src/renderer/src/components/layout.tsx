@@ -19,7 +19,7 @@ const Layout = ({ children }: { children: React.ReactNode }): React.JSX.Element 
             <ResizableHandle className="hover:bg-primary w-[2px]" withHandle />
           </>
         )}
-        <ResizablePanel defaultSize={80} minSize={60}>
+        <ResizablePanel defaultSize={60} minSize={60}>
           <div className="border-b">
             <MenuBar />
           </div>

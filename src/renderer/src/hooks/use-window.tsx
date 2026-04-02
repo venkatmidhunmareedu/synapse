@@ -6,6 +6,8 @@ interface WindowState {
   currentView: 'thumbnails' | 'annotations' | 'bookmarks'
   setCurrentView: (view: 'thumbnails' | 'annotations' | 'bookmarks') => void
   filePath: string | null
+  openFileDialog: () => void
+  closeFile: () => void
 }
 
 const windowContext = createContext<WindowState | undefined>(undefined)
@@ -16,17 +18,26 @@ const useWindow = (): WindowState => {
   )
   const [filePath, setFilePath] = useState<string | null>(null)
 
+  // open file dialog
+  const openFileDialog = (): void => {
+    selectFile().then((path) => {
+      if (path) {
+        console.log('📁 File selected:', path)
+        setFilePath(path)
+      }
+    })
+  }
+
+  const closeFile = (): void => {
+    setFilePath(null)
+  }
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent): void => {
       switch (true) {
         case e.ctrlKey && e.key === 'o':
           e.preventDefault()
-          selectFile().then((path) => {
-            if (path) {
-              console.log('📁 File selected:', path)
-              setFilePath(path)
-            }
-          })
+          openFileDialog()
           break
         case e.ctrlKey && e.key === 't':
           e.preventDefault()
@@ -64,7 +75,9 @@ const useWindow = (): WindowState => {
   return {
     currentView,
     setCurrentView,
-    filePath
+    filePath,
+    openFileDialog,
+    closeFile
   }
 }
 

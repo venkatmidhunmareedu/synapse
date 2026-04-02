@@ -3,9 +3,13 @@ import { Button } from '../ui/button'
 import { maximise, minimize, close, restore } from '@/lib/api'
 import { cn } from '@/lib/utils'
 import { useEffect, useState } from 'react'
+import { useWindowStore } from '@renderer/hooks/use-window'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '../ui/dropdown-menu'
+import Option from './option'
 
 const TitleBar = (): React.JSX.Element => {
   const [windowState, setWindowState] = useState<'MAXIMIZED' | 'UNMAXIMIZED'>('UNMAXIMIZED')
+  const { openFileDialog, closeFile, filePath } = useWindowStore()
   useEffect(() => {
     window.api.onWindowStateChanged((state) => {
       setWindowState(state as 'MAXIMIZED' | 'UNMAXIMIZED')
@@ -13,19 +17,29 @@ const TitleBar = (): React.JSX.Element => {
   }, [])
   const titleBarItems: {
     label: string
-    action: () => void
+    options: {
+      label: string
+      enabled: boolean
+      action: () => void
+      shortcut?: string
+    }[]
   }[] = [
     {
       label: 'File',
-      action: () => {
-        // TODO: Implement action
-      }
-    },
-    {
-      label: 'Edit',
-      action: () => {
-        // TODO: Implement action
-      }
+      options: [
+        {
+          label: 'Open PDF',
+          enabled: filePath === null,
+          action: () => openFileDialog(),
+          shortcut: 'Ctrl+O'
+        },
+        {
+          label: 'Close PDF',
+          enabled: filePath !== null,
+          action: () => closeFile()
+          // shortcut: 'Ctrl+W'
+        }
+      ]
     }
   ]
 
@@ -78,15 +92,29 @@ const TitleBar = (): React.JSX.Element => {
         {/* Title bar actions   */}
         <div className="flex items-center title-bar-no-drag-area">
           {titleBarItems.map((item) => (
-            <Button
-              variant={'ghost'}
-              size={'sm'}
-              key={item.label}
-              onClick={item.action}
-              className="flex m-0 items-center gap-1 hover:dark:bg-muted-foreground/20    text-xs hover:border-border"
-            >
-              {item.label}
-            </Button>
+            <DropdownMenu key={item.label}>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant={'ghost'}
+                  size={'sm'}
+                  key={item.label}
+                  className="flex m-0 items-center gap-1 hover:dark:bg-muted-foreground/20    text-xs hover:border-border"
+                >
+                  {item.label}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                {item.options.map((option) => (
+                  <Option
+                    key={option.label}
+                    label={option.label}
+                    action={option.action}
+                    shortcut={option.shortcut}
+                    enabled={option.enabled}
+                  />
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           ))}
         </div>
       </div>
