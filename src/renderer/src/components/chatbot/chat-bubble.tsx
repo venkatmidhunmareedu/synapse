@@ -4,6 +4,7 @@ import { Card } from '../ui/card'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import CodeBlock from './code-block'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion'
 
 type Props = {
   message: UIMessage
@@ -50,29 +51,61 @@ const ChatBubble = ({ message }: Props): React.JSX.Element => {
             </div>
           )
         }
-        // if (part.type === 'reasoning') {
-        //   return (
-        //     <CardContent key={index} className="text-xs italic text-muted-foreground">
-        //       <p style={{ opacity: 0.6 }}>{part.text}</p>
-        //     </CardContent>
-        //   )
-        // }
-        if (part.type === 'dynamic-tool') {
+        if (part.type === 'reasoning') {
+          return (
+            <div
+              key={index}
+              className="text-xs italic text-muted-foreground"
+              style={{ opacity: 0.6 }}
+            >
+              {part.text}
+            </div>
+          )
+        }
+        const isToolPart = part.type === 'dynamic-tool' || part.type.startsWith('tool-')
+        if (isToolPart && 'state' in part) {
+          const toolName = 'toolName' in part ? part.toolName : part.type.replace('tool-', '')
+
           switch (part.state) {
             case 'input-streaming':
               return (
                 <div key={index} className="text-xs text-muted-foreground">
-                  <p>{part.toolName} executing </p>
+                  <p> executing {toolName} ... </p>
                 </div>
               )
             case 'input-available':
               return (
+                <div key={index} className="text-xs text-muted-foreground  ">
+                  <p>{toolName} input available</p>
+                </div>
+              )
+            case 'output-available':
+              return (
                 <div key={index} className="text-xs text-muted-foreground">
-                  <p>{part.toolName} input available </p>
+                  <Accordion type="single" collapsible>
+                    <AccordionItem value={toolName} className="">
+                      <AccordionTrigger className="text-xs text-muted-foreground">
+                        {toolName} {JSON.stringify(part?.input)}
+                      </AccordionTrigger>
+                      <AccordionContent className="text-xs text-muted-foreground">
+                        <p>{part?.output as string}</p>
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
+                </div>
+              )
+            case 'output-error':
+              return (
+                <div key={index} className="text-xs text-muted-foreground">
+                  <p>{toolName} output error</p>
                 </div>
               )
             default:
-              return null
+              return (
+                <div key={index} className="text-xs text-muted-foreground">
+                  <p>{toolName} running...</p>
+                </div>
+              )
           }
         }
         return null

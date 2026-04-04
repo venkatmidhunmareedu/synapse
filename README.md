@@ -1,9 +1,10 @@
-<h1 align="center" >Synapse</h1>
-<p align="center">
-  <img src="./assets/logo.png" width="400" />
-</p>
-<br>
-<br>
+# Synapse
+
+
+
+  
+  
+
 
 Synapse is a RAG-based AI PDF viewer with a built-in chatbot, making it easier than ever to search, analyze, and learn from your documents.
 
@@ -52,3 +53,4 @@ $ pnpm build:mac
 # For Linux
 $ pnpm build:linux
 ```
+

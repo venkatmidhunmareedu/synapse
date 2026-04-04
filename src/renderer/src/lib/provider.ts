@@ -1,11 +1,31 @@
-import { ToolLoopAgent } from 'ai'
-import { ollama } from 'ollama-ai-provider-v2'
-import { tools } from './tools'
+import { ToolLoopAgent, type ToolSet } from 'ai'
+import { createOllama } from 'ai-sdk-ollama'
+import { createTools } from './tools'
 
-export const toolLoopAgent = new ToolLoopAgent({
-  model: ollama('qwen3.5:2b'),
-  instructions: 'You are a helpful assistant that can answer questions about the document.',
-  tools: tools,
-  toolChoice: 'auto',
-  activeTools: ['greet', 'weather']
+const ollamaModel = createOllama({
+  baseURL: 'http://localhost:11434'
 })
+
+const systemPrompt = `
+  You are a helpful assistant named Synapse, you are a PDF viewer assistant that can answer questions about the document and can navigate PDF pages using tools.
+  You can use the following tools to navigate the PDF:
+  - setCurrentPage: to set the current page in the PDF viewer
+  - getTotalPages: to get the total number of pages in the PDF viewer
+  - getPDFInfo: to get the PDF information
+  First, you should get the PDF information using the getPDFInfo tool before greeting the user.
+  Then, you can use the other tools to navigate the PDF.
+`
+
+type ToolAgentDeps = {
+  setCurrentPage: (page: number) => void
+  getPDFInfo: () => { currentPage: number; totalPages: number; filePath: string }
+  getTotalPages: () => number
+}
+
+export const createToolLoopAgent = (deps: ToolAgentDeps): ToolLoopAgent<never, ToolSet, never> => {
+  return new ToolLoopAgent({
+    model: ollamaModel('qwen3.5:2b'),
+    instructions: systemPrompt,
+    tools: createTools(deps)
+  })
+}

@@ -1,20 +1,42 @@
 import ChatInput from './chat-input'
 import { ScrollArea } from '../ui/scroll-area'
 import { useChat } from '@ai-sdk/react'
-import { toolLoopAgent } from '@/lib/provider'
+import { createToolLoopAgent } from '@/lib/provider'
 import { DirectChatTransport } from 'ai'
 import { useMemo, useState } from 'react'
 import ChatBubble from './chat-bubble'
 import ChatActions from './chat-actions'
 import EmptyState from './empty-state'
-
-const transport = new DirectChatTransport({
-  agent: toolLoopAgent
-})
+import { usePDFStore } from '@/hooks/use-pdf'
+import { useWindowStore } from '@renderer/hooks/use-window'
 
 const ChatBot = (): React.JSX.Element => {
+  const { setCurrentPage, totalPages, currentPage } = usePDFStore()
+  const { filePath } = useWindowStore()
+  const toolLoopAgent = useMemo(
+    () =>
+      createToolLoopAgent({
+        setCurrentPage,
+        getTotalPages: () => totalPages,
+        getPDFInfo: () => ({ currentPage, totalPages, filePath: filePath ?? '' })
+      }),
+    [setCurrentPage, totalPages, currentPage, filePath]
+  )
+  const transport = useMemo(
+    () =>
+      new DirectChatTransport({
+        agent: toolLoopAgent,
+        sendReasoning: true,
+        sendSources: true
+      }),
+    [toolLoopAgent]
+  )
+
   const { messages, sendMessage, status, stop } = useChat({
-    transport
+    transport,
+    onFinish: (message) => {
+      console.log(message)
+    }
   })
   const isStreaming = useMemo(() => status === 'streaming' || status !== 'ready', [status])
   const [input, setInput] = useState('')
@@ -45,6 +67,12 @@ const ChatBot = (): React.JSX.Element => {
             {messages.map((message, index) => (
               <ChatBubble key={index} message={message} />
             ))}
+            {status === 'streaming' && (
+              <div className="text-xs text-muted-foreground flex items-center gap-2">
+                <span className="animate-pulse inline-block w-2 h-2 rounded-full bg-muted-foreground"></span>
+                <p>Synapse is thinking...</p>
+              </div>
+            )}
           </ScrollArea>
         )}
       </div>
