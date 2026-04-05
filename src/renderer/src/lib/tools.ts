@@ -1,5 +1,6 @@
 import { tool, type ToolSet } from 'ai'
 import z from 'zod'
+import { queryPDFFile } from './api'
 
 type ToolDeps = {
   setCurrentPage: (page: number) => void
@@ -27,6 +28,15 @@ export const createTools = ({ setCurrentPage, getTotalPages, getPDFInfo }: ToolD
       execute: async () => {
         const { currentPage, totalPages, filePath } = getPDFInfo()
         return `PDF information: ${currentPage} of ${totalPages} in ${filePath}.`
+      }
+    }),
+    queryPDF: tool({
+      description: 'Query the PDF',
+      inputSchema: z.object({
+        query: z.string().describe('The query to search for')
+      }),
+      execute: async ({ query }: { query: string }) => {
+        return await queryPDFFile(query, getPDFInfo().filePath)
       }
     })
   } satisfies ToolSet

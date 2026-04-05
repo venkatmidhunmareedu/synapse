@@ -30,3 +30,11 @@ export const readPDFFile = async (filePath: string): Promise<Uint8Array> => {
   }
   return bytes
 }
+
+export const embedPDFFile = async (filePath: string): Promise<boolean> => {
+  return window.api.embedPDFFile(filePath)
+}
+
+export const queryPDFFile = async (query: string, filePath: string): Promise<string[]> => {
+  return window.api.queryPDFFile(query, filePath)
+}

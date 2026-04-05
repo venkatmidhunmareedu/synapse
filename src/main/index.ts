@@ -1,8 +1,12 @@
 import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
+import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf'
 import { readFileSync } from 'fs'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import { generateSplitDocs } from './embedder'
+import { getFileName } from './lib/utils'
+import { queryDocs, storeDocs } from './lancedb'
 
 function createWindow(): void {
   // Create the browser window.
@@ -117,6 +121,32 @@ app.whenReady().then(() => {
       throw error
     }
   })
+  ipcMain.handle('pdf:embed-file', async (_event, filePath: string): Promise<boolean> => {
+    const loader = new PDFLoader(filePath)
+    const docs = await loader.load()
+    console.log('STATUS', 'EMBEDDING PDF FILE')
+    const splitDocs = await generateSplitDocs(docs)
+    await storeDocs(splitDocs, getFileName(filePath))
+      .then(() => {
+        console.log('STATUS', 'PDF FILE EMBEDDED SUCCESSFULLY')
+        return true
+      })
+      .catch((error) => {
+        console.error('🔧 Main process: Error embedding PDF file:', error)
+        return false
+      })
+    return false
+  })
+  ipcMain.handle(
+    'pdf:query-file',
+    async (_event, query: string, filePath: string): Promise<string[]> => {
+      console.log('fileName', getFileName(filePath))
+
+      const results = await queryDocs(query, getFileName(filePath))
+      // with metadata and content
+      return results.map((result) => `${JSON.stringify(result.metadata)}: ${result.pageContent}`)
+    }
+  )
 
   createWindow()
 

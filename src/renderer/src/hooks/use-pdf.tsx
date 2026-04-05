@@ -2,7 +2,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { pdfjs } from 'react-pdf'
 import { useWindowStore } from './use-window'
-import { readPDFFile } from '../lib/api'
+import { embedPDFFile, readPDFFile } from '../lib/api'
 
 interface PDFState {
   loading: boolean
@@ -65,6 +65,15 @@ const usePDF = (): PDFState => {
           message: err instanceof Error ? err.message : 'Failed to load PDF'
         })
       })
+
+    // Embed the PDF file immediately after loading
+    embedPDFFile(filePath).then((success) => {
+      if (success) {
+        console.log('STATUS', 'PDF FILE EMBEDDED SUCCESSFULLY')
+      } else {
+        console.error('🔧 Renderer process: Error embedding PDF file')
+      }
+    })
 
     return () => {
       isMounted = false

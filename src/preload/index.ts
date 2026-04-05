@@ -13,7 +13,11 @@ const api = {
   onWindowStateChanged: (callback: (state: string) => void) =>
     electronAPI.ipcRenderer.on('window:state-changed', (_event, isMaximized) =>
       callback(isMaximized as string)
-    )
+    ),
+  embedPDFFile: (filePath: string): Promise<boolean> =>
+    electronAPI.ipcRenderer.invoke('pdf:embed-file', filePath),
+  queryPDFFile: (query: string, filePath: string): Promise<string[]> =>
+    electronAPI.ipcRenderer.invoke('pdf:query-file', query, filePath)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

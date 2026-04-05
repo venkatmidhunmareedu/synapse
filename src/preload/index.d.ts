@@ -12,6 +12,8 @@ declare global {
       selectFile: () => Promise<string | null>
       readPDFFile: (filePath: string) => Promise<string>
       onWindowStateChanged: (callback: (state: string) => void) => void
+      embedPDFFile: (filePath: string) => Promise<boolean>
+      queryPDFFile: (query: string, filePath: string) => Promise<string[]>
     }
   }
 }
