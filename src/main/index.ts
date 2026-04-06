@@ -5,8 +5,10 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { generateSplitDocs } from './embedder'
-import { getFileName } from './lib/utils'
+import { getFileName, sendMessageToRenderer } from './lib/utils'
 import { queryDocs, storeDocs } from './lancedb'
+import logger from './lib/logger'
+import { EMBEDDING_STATUS } from './lib/constants'
 
 function createWindow(): void {
   // Create the browser window.
@@ -104,35 +106,39 @@ app.whenReady().then(() => {
         ]
       })
       if (result) {
-        console.log('File opened : ', result[0])
+        logger.info(`File opened : ${result[0]}`)
         return result[0]
       }
     }
     return null
   })
   ipcMain.handle('pdf:read-file', (_event, filePath: string): string => {
-    console.log('🔧 Main process: pdf:read-file called with path:', filePath)
+    logger.info(`pdf:read-file called with path: ${filePath}`)
     try {
       const fileData = readFileSync(filePath)
-      console.log('🔧 Main process: File read successfully, size:', fileData.length, 'bytes')
+      logger.info(`File read successfully, size: ${fileData.length} bytes`)
       return fileData.toString('base64') // ✅ base64 is IPC-safe
     } catch (error) {
-      console.error('🔧 Main process: Error reading PDF file:', error)
+      logger.error(`Error reading PDF file: ${error}`)
       throw error
     }
   })
   ipcMain.handle('pdf:embed-file', async (_event, filePath: string): Promise<boolean> => {
     const loader = new PDFLoader(filePath)
     const docs = await loader.load()
-    console.log('STATUS', 'EMBEDDING PDF FILE')
+    logger.info('EMBEDDING PDF FILE')
+    sendMessageToRenderer('embedding:status', EMBEDDING_STATUS.EMBEDDING)
     const splitDocs = await generateSplitDocs(docs)
+    sendMessageToRenderer('embedding:status', EMBEDDING_STATUS.CHUNKING)
     await storeDocs(splitDocs, getFileName(filePath))
       .then(() => {
-        console.log('STATUS', 'PDF FILE EMBEDDED SUCCESSFULLY')
+        logger.info('PDF FILE EMBEDDED SUCCESSFULLY')
+        sendMessageToRenderer('embedding:status', EMBEDDING_STATUS.EMBEDDED)
         return true
       })
       .catch((error) => {
-        console.error('🔧 Main process: Error embedding PDF file:', error)
+        logger.error(`Error embedding PDF file: ${error}`)
+        sendMessageToRenderer('embedding:status', EMBEDDING_STATUS.ERROR)
         return false
       })
     return false
@@ -140,10 +146,9 @@ app.whenReady().then(() => {
   ipcMain.handle(
     'pdf:query-file',
     async (_event, query: string, filePath: string): Promise<string[]> => {
-      console.log('fileName', getFileName(filePath))
-
+      logger.info(`Querying file: ${getFileName(filePath)}`)
       const results = await queryDocs(query, getFileName(filePath))
-      // with metadata and content
+      logger.info(`Results: ${results.length}`)
       return results.map((result) => `${JSON.stringify(result.metadata)}: ${result.pageContent}`)
     }
   )
