@@ -43,6 +43,7 @@
     "pdf-parse": "^1.1.4",
     "pdfjs-dist": "5.4.296",
     "radix-ui": "^1.4.3",
+    "react-latex-next": "^3.0.0",
     "react-markdown": "^10.1.0",
     "react-pdf": "^10.4.0",
     "react-resizable-panels": "^4.6.5",

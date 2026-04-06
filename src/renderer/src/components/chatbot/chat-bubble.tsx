@@ -5,9 +5,31 @@ import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import CodeBlock from './code-block'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion'
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '../ui/table'
+import { cn } from '@renderer/lib/utils'
+import Latex from 'react-latex-next'
+import 'katex/dist/katex.min.css'
 
 type Props = {
   message: UIMessage
+}
+
+function renderLatexText(children: React.ReactNode): React.ReactNode {
+  return React.Children.map(children, (child) => {
+    if (typeof child === 'string') {
+      return <Latex>{child}</Latex>
+    }
+    return child
+  })
 }
 
 const ChatBubble = ({ message }: Props): React.JSX.Element => {
@@ -23,7 +45,7 @@ const ChatBubble = ({ message }: Props): React.JSX.Element => {
             )
           }
           return (
-            <div key={index} className="text-xs">
+            <div key={index} className="text-xs w-[calc(100%-2rem)]">
               <Markdown
                 remarkPlugins={[remarkGfm]}
                 components={{
@@ -43,6 +65,135 @@ const ChatBubble = ({ message }: Props): React.JSX.Element => {
                   },
                   pre({ children }) {
                     return <pre className="text-red">{children}</pre>
+                  },
+                  table({ className, children, ...props }) {
+                    return (
+                      <Table className={cn(className, 'text-xs my-1')} {...props}>
+                        {children}
+                      </Table>
+                    )
+                  },
+                  thead({ className, children, ...props }) {
+                    return (
+                      <TableHeader className={className} {...props}>
+                        {children}
+                      </TableHeader>
+                    )
+                  },
+                  tbody({ className, children, ...props }) {
+                    return (
+                      <TableBody className={className} {...props}>
+                        {children}
+                      </TableBody>
+                    )
+                  },
+                  tfoot({ className, children, ...props }) {
+                    return (
+                      <TableFooter className={className} {...props}>
+                        {children}
+                      </TableFooter>
+                    )
+                  },
+                  tr({ className, children, ...props }) {
+                    return (
+                      <TableRow className={className} {...props}>
+                        {children}
+                      </TableRow>
+                    )
+                  },
+                  th({ className, children, ...props }) {
+                    return (
+                      <TableHead className={className} {...props}>
+                        {renderLatexText(children)}
+                      </TableHead>
+                    )
+                  },
+                  td({ className, children, ...props }) {
+                    return (
+                      <TableCell className={className} {...props}>
+                        {renderLatexText(children)}
+                      </TableCell>
+                    )
+                  },
+                  caption({ className, children, ...props }) {
+                    return (
+                      <TableCaption className={className} {...props}>
+                        {children}
+                      </TableCaption>
+                    )
+                  },
+                  p({ className, children, ...props }) {
+                    return (
+                      <p className={cn(className, 'text-xs my-1')} {...props}>
+                        {renderLatexText(children)}
+                      </p>
+                    )
+                  },
+                  ul({ className, children, ...props }) {
+                    return (
+                      <ul
+                        className={cn(className, 'text-xs my-2 list-disc list-inside')}
+                        {...props}
+                      >
+                        {children}
+                      </ul>
+                    )
+                  },
+                  ol({ className, children, ...props }) {
+                    return (
+                      <ol className={cn(className, 'text-xs my-2 list-decimal')} {...props}>
+                        {children}
+                      </ol>
+                    )
+                  },
+                  li({ className, children, ...props }) {
+                    return (
+                      <li className={cn(className, 'text-xs')} {...props}>
+                        {renderLatexText(children)}
+                      </li>
+                    )
+                  },
+                  h1({ className, children, ...props }) {
+                    return (
+                      <h1 className={cn(className, 'text-xl my-1')} {...props}>
+                        {renderLatexText(children)}
+                      </h1>
+                    )
+                  },
+                  h2({ className, children, ...props }) {
+                    return (
+                      <h2 className={cn(className, 'text-lg font-bold my-1')} {...props}>
+                        {renderLatexText(children)}
+                      </h2>
+                    )
+                  },
+                  h3({ className, children, ...props }) {
+                    return (
+                      <h3 className={cn(className, 'text-md my-1')} {...props}>
+                        {renderLatexText(children)}
+                      </h3>
+                    )
+                  },
+                  h4({ className, children, ...props }) {
+                    return (
+                      <h4 className={cn(className, 'text-base my-1')} {...props}>
+                        {renderLatexText(children)}
+                      </h4>
+                    )
+                  },
+                  h5({ className, children, ...props }) {
+                    return (
+                      <h5 className={cn(className, 'text-sm my-1')} {...props}>
+                        {renderLatexText(children)}
+                      </h5>
+                    )
+                  },
+                  h6({ className, children, ...props }) {
+                    return (
+                      <h6 className={cn(className, 'text-xs my-1 font-bold')} {...props}>
+                        {renderLatexText(children)}
+                      </h6>
+                    )
                   }
                 }}
               >
