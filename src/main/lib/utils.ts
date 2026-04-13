@@ -15,10 +15,10 @@ export function generateFileNameWithForbiddenCharacters(fileName: string): strin
   return sanitized.length > 0 ? sanitized : 'table'
 }
 
-export function sendMessageToRenderer(statusTitle: string, message: string): void {
+export function sendMessageToRenderer(title: string, message: string): void {
   const mainWindow = BrowserWindow.getFocusedWindow()
   if (mainWindow) {
-    logger.info(`Sending message to renderer: ${statusTitle} ${message}`)
-    mainWindow.webContents.send(statusTitle, message)
+    logger.info(`Sending message to renderer: ${title} ${message}`)
+    mainWindow.webContents.send(title, message)
   }
 }

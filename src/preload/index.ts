@@ -1,5 +1,6 @@
 import { contextBridge } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
+import { EMBEDDING_STATUS } from '../main/lib/constants'
 
 // Custom APIs for renderer
 const api = {
@@ -13,6 +14,10 @@ const api = {
   onWindowStateChanged: (callback: (state: string) => void) =>
     electronAPI.ipcRenderer.on('window:state-changed', (_event, isMaximized) =>
       callback(isMaximized as string)
+    ),
+  onEmbeddingStatusChanged: (callback: (status: EMBEDDING_STATUS) => void) =>
+    electronAPI.ipcRenderer.on('embedding:status', (_event, status) =>
+      callback(status as EMBEDDING_STATUS)
     ),
   embedPDFFile: (filePath: string): Promise<boolean> =>
     electronAPI.ipcRenderer.invoke('pdf:embed-file', filePath),

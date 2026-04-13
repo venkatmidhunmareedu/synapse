@@ -1,11 +1,14 @@
 /* eslint-disable react-refresh/only-export-components */
 import { selectFile } from '@/lib/api'
 import { createContext, useContext, useEffect, useState } from 'react'
-
+import { OLLAMA_STATUS } from '../lib/types'
+import { EMBEDDING_STATUS } from '../lib/types'
 interface WindowState {
   currentView: 'thumbnails' | 'annotations' | 'bookmarks'
   setCurrentView: (view: 'thumbnails' | 'annotations' | 'bookmarks') => void
   filePath: string | null
+  embeddingStatus: EMBEDDING_STATUS
+  ollamaStatus: OLLAMA_STATUS
 }
 
 const windowContext = createContext<WindowState | undefined>(undefined)
@@ -15,6 +18,15 @@ const useWindow = (): WindowState => {
     'thumbnails'
   )
   const [filePath, setFilePath] = useState<string | null>(null)
+  const [embeddingStatus, setEmbeddingStatus] = useState<EMBEDDING_STATUS>(EMBEDDING_STATUS.IDLE)
+  const [ollamaStatus] = useState<OLLAMA_STATUS>(OLLAMA_STATUS.STARTING)
+
+  useEffect(() => {
+    const handleEmbeddingStatus = (status: EMBEDDING_STATUS): void => {
+      setEmbeddingStatus(status as EMBEDDING_STATUS)
+    }
+    window.api.onEmbeddingStatusChanged(handleEmbeddingStatus)
+  }, [])
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent): void => {
@@ -64,7 +76,9 @@ const useWindow = (): WindowState => {
   return {
     currentView,
     setCurrentView,
-    filePath
+    filePath,
+    embeddingStatus,
+    ollamaStatus
   }
 }
 
