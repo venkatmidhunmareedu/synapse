@@ -17,3 +17,11 @@ export enum OLLAMA_STATUS {
   RUNNING = 'RUNNING',
   STOPPED = 'STOPPED'
 }
+
+
+// Icons base type
+export type IconProps = {
+  color?: string, 
+  size?: number, 
+  strokeWidth?: number,
+} & React.SVGProps<SVGSVGElement>

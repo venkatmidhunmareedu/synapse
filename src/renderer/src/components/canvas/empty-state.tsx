@@ -1,5 +1,7 @@
 import { Kbd, KbdGroup } from '@/components/ui/kbd'
 import { ReactNode } from 'react'
+import icon from '@renderer/assets/images/icon.svg'
+import { BaseIcon } from '../icons'
 
 const KBD = ({ cmds }: { cmds: string[] }): React.JSX.Element => {
   return (
@@ -42,7 +44,13 @@ const EmptyState = (): React.JSX.Element => {
   return (
     <div className="flex items-center justify-center h-full cursor-none pointer-events-none select-none">
       <div className="text-left">
-        <div className="text-2xl font-bold mb-2">Synapse</div>
+        <div className='flex  items-center justify-center h-full w-full gap-1 mb-2 border border rounded-lg p-2'>
+          <div className='size-20'>
+            <BaseIcon className='text-muted-foreground size-20' />
+          </div>
+          <div className="text-3xl font-bold">Synapse</div>
+        </div>
+
         <p className="text-muted-foreground text-sm">
           Your AI powered PDF viewer and analysis companion
         </p>
@@ -50,9 +58,9 @@ const EmptyState = (): React.JSX.Element => {
         <div className="flex flex-col text-sm text-gray-500 space-y-3">
           {keyBoardBindings.map((kb, index) => {
             return (
-              <div className="grid grid-cols-2 items-center gap-6" key={index}>
+              <div className="grid grid-cols-2 items-center" key={index}>
                 <div className="text-muted-foreground text-md">{kb.label}</div>
-                <div>{kb.command}</div>
+                <div className='flex justify-end'>{kb.command}</div>
               </div>
             )
           })}
