@@ -132,7 +132,7 @@ const ChatBubble = ({ message }: Props): React.JSX.Element => {
                   ul({ className, children, ...props }) {
                     return (
                       <ul
-                        className={cn(className, 'text-xs my-2 list-disc list-inside')}
+                        className={cn(className, 'text-xs my-2')}
                         {...props}
                       >
                         {children}

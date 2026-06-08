@@ -1,11 +1,7 @@
 # Synapse
 
-
-
+![screenshot-1](./assets/screenshot-1.png) 
   
-  
-
-
 Synapse is a RAG-based AI PDF viewer with a built-in chatbot, making it easier than ever to search, analyze, and learn from your documents.
 
 ## Features

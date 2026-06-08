@@ -38,7 +38,7 @@ const ChatBot = (): React.JSX.Element => {
       console.log(message)
     }
   })
-  const isStreaming = useMemo(() => status === 'streaming' || status !== 'ready', [status])
+  const isStreaming = useMemo(() => status === 'streaming' || status === "submitted" , [status])
   const [input, setInput] = useState('')
   const handleInputChange = (value: string): void => {
     setInput(value)
@@ -71,6 +71,11 @@ const ChatBot = (): React.JSX.Element => {
               <div className="text-xs text-muted-foreground flex items-center gap-2">
                 <span className="animate-pulse inline-block w-2 h-2 rounded-full bg-muted-foreground"></span>
                 <p>Synapse is thinking...</p>
+              </div>
+            )}
+            {status === 'error' && (
+              <div className="text-xs text-muted-foreground flex items-center gap-2">
+                <p>Error while processing the request</p>
               </div>
             )}
           </ScrollArea>

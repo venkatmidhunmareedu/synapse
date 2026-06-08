@@ -29,6 +29,7 @@
     "@langchain/community": "^1.1.27",
     "@langchain/ollama": "^1.2.6",
     "@langchain/textsplitters": "^1.0.1",
+    "@openrouter/ai-sdk-provider": "^2.9.0",
     "@pdf-viewer/react": "^1.19.0",
     "@tailwindcss/vite": "^4.2.1",
     "ai": "^6.0.143",
