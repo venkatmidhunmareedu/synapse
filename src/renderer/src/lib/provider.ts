@@ -1,9 +1,8 @@
 import { ToolLoopAgent, type ToolSet } from 'ai'
-// import { createOllama } from 'ai-sdk-ollama'
-import { createOpenRouter } from '@openrouter/ai-sdk-provider'
+import { createOllama } from 'ai-sdk-ollama'
 import { createTools } from './tools'
 
-const ollamaModel = createOllama({
+const ollamaModelProvider = createOllama({
   baseURL: 'http://localhost:11434'
 })
 
@@ -25,7 +24,7 @@ type ToolAgentDeps = {
 
 export const createToolLoopAgent = (deps: ToolAgentDeps): ToolLoopAgent<never, ToolSet, never> => {
   return new ToolLoopAgent({
-    model: openRouterProvider('openrouter/free'),
+    model: ollamaModelProvider('llama3.2:1b'),
     // model : ollamaModelProvider('llama3.2:1b'),
     instructions: systemPrompt,
     tools: createTools(deps)
